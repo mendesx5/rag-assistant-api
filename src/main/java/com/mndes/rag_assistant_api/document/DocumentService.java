@@ -1,9 +1,9 @@
 package com.mndes.rag_assistant_api.document;
 
 import com.mndes.rag_assistant_api.document.DTO.DocumentResponse;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -45,7 +45,7 @@ public class DocumentService {
         if (file.isEmpty()) {
             throw new IllegalArgumentException("File must not be empty");
         }
-        if (!"aplication/pdf".equals(file.getContentType())) {
+        if (!"application/pdf".equals(file.getContentType())) {
             throw new IllegalArgumentException("Only PDF files are allowed");
         }
         if (file.getSize() > MAX_FILE_SIZE) {
@@ -60,7 +60,7 @@ public class DocumentService {
                 Files.createDirectories(uploadPath);
             }
 
-            String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
+            String fileName = UUID.randomUUID() + ".pdf";
             Path targetPath = uploadPath.resolve(fileName);
             file.transferTo(targetPath);
 
