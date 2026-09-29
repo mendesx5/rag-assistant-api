@@ -1,5 +1,8 @@
 # rag-assistant-api
 
+![Java](https://img.shields.io/badge/java-%23ED8B00.svg?style=for-the-badge&logo=openjdk&logoColor=white)
+![Spring](https://img.shields.io/badge/spring-%236DB33F.svg?style=for-the-badge&logo=spring&logoColor=white)
+
 Java / Spring Boot backend for the **Corporate RAG Assistant** - a portfolio project where users upload PDF documents and then ask natural-language questions about them, receiving AI-generated answers based strictly on the uploaded content (Retrieval-Augmented Generation), instead of the model "making things up".
 
 This service is the **Front Desk**: it's the entry point the user actually talks to. It handles authentication, receives document uploads, publishes processing jobs to a queue, exposes the chat endpoint, and persists all metadata and conversation history.
@@ -42,15 +45,15 @@ Copy `.env.example` to `.env` and fill in your local values before running (neve
 
 The full project is planned in 6 weekly sprints (Scrum). This repository is the Java side of Sprints 0, 1, 2, 5, and 6.
 
-| Sprint | Focus | Touches this repo? |
-|---|---|---|
-| 0 | Environment foundation | Partly - repo setup |
-| **1** | **Document modeling & upload endpoint** | ✅ Yes |
-| **2** | **Async messaging (publish to queue)** | ✅ Yes |
-| 3 | Python - queue consumption | No |
-| 4 | Python - RAG core | No |
-| **5** | **Chat endpoint & history** | ✅ Yes |
-| **6** | **UI, resilience, documentation** | ✅ Yes |
+| Sprint | Focus                                   | Touches this repo?  |
+|  ---   |  ---                                    |     ---             |
+|   0    | Environment foundation                  | Partly - repo setup |
+| **1**  | **Document modeling & upload endpoint** | ✅ Yes              |
+| **2**  | **Async messaging (publish to queue)**  | ✅ Yes              |
+|   3    | Python - queue consumption              | No                  |
+|   4    | Python - RAG core                       | No                  |
+| **5**  | **Chat endpoint & history**             | ✅ Yes              |
+| **6**  | **UI, resilience, documentation**       | ✅ Yes              |
 
 ## Current status: Sprint 0
 
@@ -69,6 +72,16 @@ The full project is planned in 6 weekly sprints (Scrum). This repository is the 
 - [x] `POST /api/documents` endpoint receiving a `MultipartFile`
 - [x] File saved to local disk (or temp folder) + metadata saved to PostgreSQL
 - [x] File type/size validation
+
+## Coming up next — Sprint 2
+
+**Goal:** Each upload triggers a reliable message in the queue, ready to be processed by the AI ​​service.
+
+- [ ] Configurar Spring AMQP (conexão com RabbitMQ)
+- [ ] Declarar exchange e queue como duráveis (durable=true)
+- [ ] Configurar publisher confirms (spring.rabbitmq.publisher-confirm-type=correlated)
+- [ ] Publicar mensagem estruturada (event_id, document_id, file_path, timestamp) a cada upload
+- [ ] Publicar a mensagem dentro da mesma transação que salva o status "processando"
 
 ## Why this architecture
 
