@@ -1,7 +1,9 @@
 package com.mndes.rag_assistant_api.document;
 
 import com.mndes.rag_assistant_api.document.DTO.DocumentResponse;
+import com.mndes.rag_assistant_api.messaging.DocumentUploadedEvent;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,6 +22,7 @@ public class DocumentService {
     private final DocumentRepository documentRepository;
     private final long MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
     private final String UPLOAD_DIR = "uploads";
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public DocumentResponse uploadDocument(MultipartFile file, String owner) {
@@ -30,13 +33,15 @@ public class DocumentService {
 
         Document document = Document.builder()
                 .name(file.getOriginalFilename())
-                .status(DocumentStatus.PENDING)
+                .status(DocumentStatus.PROCESSING)
                 .uploadDate(LocalDateTime.now())
                 .owner(owner)
                 .filePath(storedFilePath)
                 .build();
 
         Document savedDocument = documentRepository.save(document);
+
+        eventPublisher.publishEvent(DocumentUploadedEvent.from(savedDocument));
 
         return DocumentResponse.fromEntity(savedDocument);
     }
@@ -64,7 +69,7 @@ public class DocumentService {
             Path targetPath = uploadPath.resolve(fileName);
             file.transferTo(targetPath);
 
-            return targetPath.toString();
+            return targetPath.toAbsolutePath().toString();
         } catch (IOException e) {
             throw new RuntimeException("Failed to store the file", e);
         }
